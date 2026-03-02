@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Portal - Together We Grow</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🏘️</span>
+                <span class="logo-text">Community Portal</span>
+            </div>
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#" onclick="switchPage('home')">Home</a></li>
+                <li><a href="#" onclick="switchPage('donation')">Donations</a></li>
+                <li><a href="#" onclick="switchPage('message')">Message</a></li>
+                <li id="authNavItem"><a href="#" onclick="switchPage('login')">Login</a></li>
+                <li id="adminNavItem" style="display: none;"><a href="#" onclick="switchPage('admin')">Admin</a></li>
+                <li id="logoutNavItem" style="display: none;"><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- ===== HOME PAGE ===== -->
+        <div id="home" class="page active">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title animate-float">
+                        <span class="emoji">🌟</span>
+                        <br>Welcome to Our Community
+                    </h1>
+                    <p class="hero-subtitle">Together we build, grow, and support each other</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" onclick="switchPage('donation')">View Donations</button>
+                        <button class="btn btn-secondary" onclick="switchPage('message')">Send Message</button>
+                    </div>
+                </div>
+                <div class="hero-background">
+                    <div class="floating-shape shape-1"></div>
+                    <div class="floating-shape shape-2"></div>
+                    <div class="floating-shape shape-3"></div>
+                </div>
+            </section>
+
+            <!-- Leaders Section -->
+            <section class="leaders-section">
+                <div class="section-container">
+                    <h2 class="section-title">Our Community Leaders</h2>
+                    <p class="section-subtitle">Meet the people leading our community</p>
+                    <div class="leaders-grid" id="leadersGrid">
+                        <!-- Leaders will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats-section">
+                <div class="section-container">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-number" id="statUsers">0</div>
+                            <div class="stat-label">Community Members</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-number" id="statDonations">0</div>
+                            <div class="stat-label">Total Donations</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💬</div>
+                            <div class="stat-number" id="statMessages">0</div>
+                            <div class="stat-label">Messages Received</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👨‍💼</div>
+                            <div class="stat-number" id="statLeaders">0</div>
+                            <div class="stat-label">Community Leaders</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>&copy; 2024 Community Portal. Built with 💚 for our community.</p>
+            </footer>
+        </div>
+
+        <!-- ===== DONATION PAGE ===== -->
+        <div id="donation" class="page">
+            <div class="page-header">
+                <h2>Donation Status</h2>
+                <p>Track monthly donation contributions</p>
+            </div>
+            <div class="section-container">
+                <div class="donation-filters">
+                    <input type="email" id="donationEmail" placeholder="Enter email to check status" class="form-input">
+                    <button class="btn btn-primary" onclick="loadDonationStatus()">Check Status</button>
+                </div>
+                <div class="donation-table-container">
+                    <table class="donation-table" id="donationTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donationTableBody">
+                            <tr>
+                                <td colspan="3" class="text-center">Enter your email to view donation status</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MESSAGE PAGE ===== -->
+        <div id="message" class="page">
+            <div class="page-header">
+                <h2>Send us a Message</h2>
+                <p>We'd love to hear from you</p>
+            </div>
+            <div class="section-container">
+                <div class="form-container">
+                    <form id="messageForm" class="form-grid">
+                        <div class="form-group">
+                            <label for="msgName">Full Name</label>
+                            <input type="text" id="msgName" required placeholder="Your name" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="msgPhone">Phone Number</label>
+                            <input type="tel" id="msgPhone" required placeholder="Your phone" class="form-input">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="msgAddress">Address</label>
+                            <input type="text" id="msgAddress" required placeholder="Your address" class="form-input">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="msgContent">Message</label>
+                            <textarea id="msgContent" required placeholder="Your message here..." class="form-textarea" rows="5"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== LOGIN PAGE ===== -->
+        <div id="login" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2>Login to Your Account</h2>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" required placeholder="your@email.com" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required placeholder="••••••••" class="form-input">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">Login</button>
+                    </form>
+                    <p class="auth-link">Don't have an account? <a href="#" onclick="switchPage('signup')">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SIGNUP PAGE ===== -->
+        <div id="signup" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2>Create Your Account</h2>
+                    <form id="signupForm">
+                        <div class="form-group">
+                            <label for="signupName">Full Name</label>
+                            <input type="text" id="signupName" required placeholder="Your full name" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="signupEmail">Email</label>
+                            <input type="email" id="signupEmail" required placeholder="your@email.com" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="signupPhone">Phone Number</label>
+                            <input type="tel" id="signupPhone" required placeholder="Your phone number" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="signupAddress">Permanent Address</label>
+                            <input type="text" id="signupAddress" required placeholder="Your address" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" required placeholder="••••••••" class="form-input">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">Create Account</button>
+                    </form>
+                    <p class="auth-link">Already have an account? <a href="#" onclick="switchPage('login')">Login</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ADMIN PANEL ===== -->
+        <div id="admin" class="page">
+            <div class="admin-container">
+                <h2>Admin Dashboard</h2>
+                
+                <!-- Admin Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" onclick="switchAdminTab('dashboard')">Dashboard</button>
+                    <button class="admin-tab-btn" onclick="switchAdminTab('leaders')">Leaders</button>
+                    <button class="admin-tab-btn" onclick="switchAdminTab('donations')">Donations</button>
+                    <button class="admin-tab-btn" onclick="switchAdminTab('messages')">Messages</button>
+                </div>
+
+                <!-- Dashboard Tab -->
+                <div id="dashboardTab" class="admin-tab-content active">
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <div class="stat-icon large">👥</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Users</div>
+                                <div class="stat-value" id="adminStatUsers">0</div>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="stat-icon large">👨‍💼</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Leaders</div>
+                                <div class="stat-value" id="adminStatLeaders">0</div>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="stat-icon large">💬</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Messages</div>
+                                <div class="stat-value" id="adminStatMessages">0</div>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="stat-icon large">💰</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Donation Records</div>
+                                <div class="stat-value" id="adminStatDonations">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaders Tab -->
+                <div id="leadersTab" class="admin-tab-content">
+                    <div class="admin-section">
+                        <button class="btn btn-primary" onclick="openLeaderModal()">+ Add New Leader</button>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Title</th>
+                                    <th>Photo URL</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadersTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Donations Tab -->
+                <div id="donationsTab" class="admin-tab-content">
+                    <div class="admin-section">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Month</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminDonationsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div id="messagesTab" class="admin-tab-content">
+                    <div class="admin-section">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messagesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modals -->
+    <!-- Leader Detail Modal -->
+    <div id="leaderModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('leaderModal')">&times;</button>
+            <div class="leader-modal-body">
+                <img id="leaderPhoto" src="" alt="Leader" class="leader-modal-photo">
+                <h3 id="leaderName"></h3>
+                <p class="leader-title" id="leaderTitle"></p>
+                <p id="leaderDescription"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leader Form Modal (Admin) -->
+    <div id="leaderFormModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('leaderFormModal')">&times;</button>
+            <h3 id="leaderFormTitle">Add New Leader</h3>
+            <form id="leaderForm" class="form-grid">
+                <input type="hidden" id="leaderId">
+                <div class="form-group">
+                    <label for="leaderInputName">Name</label>
+                    <input type="text" id="leaderInputName" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="leaderInputTitle">Title</label>
+                    <input type="text" id="leaderInputTitle" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="leaderInputPhoto">Photo URL</label>
+                    <input type="url" id="leaderInputPhoto" required class="form-input">
+                </div>
+                <div class="form-group full-width">
+                    <label for="leaderInputDesc">Description</label>
+                    <textarea id="leaderInputDesc" required class="form-textarea" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Leader</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message View Modal (Admin) -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('messageModal')">&times;</button>
+            <h3>View Message</h3>
+            <div class="message-view">
+                <p><strong>Name:</strong> <span id="messageViewName"></span></p>
+                <p><strong>Phone:</strong> <span id="messageViewPhone"></span></p>
+                <p><strong>Address:</strong> <span id="messageViewAddress"></span></p>
+                <p><strong>Date:</strong> <span id="messageViewDate"></span></p>
+                <p><strong>Message:</strong></p>
+                <div class="message-content" id="messageViewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Donation Status Modal -->
+    <div id="donationStatusModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('donationStatusModal')">&times;</button>
+            <h3>Update Donation Status</h3>
+            <form id="donationStatusForm">
+                <input type="hidden" id="donationId">
+                <div class="form-group">
+                    <label for="donationMonth">Month</label>
+                    <input type="text" id="donationMonth" disabled class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="donationStatusSelect">Status</label>
+                    <select id="donationStatusSelect" class="form-input">
+                        <option value="paid">Paid ✓</option>
+                        <option value="pending">Pending ⏳</option>
+                        <option value="unpaid">Unpaid ✗</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Status</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div id="successNotification" class="notification success">
+        <span id="notificationText"></span>
+        <button onclick="closeNotification()" class="notification-close">&times;</button>
+    </div>
+
+    <!-- Error Notification -->
+    <div id="errorNotification" class="notification error">
+        <span id="errorText"></span>
+        <button onclick="closeNotification('error')" class="notification-close">&times;</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

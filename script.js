@@ -1,5 +1,5 @@
 // ===== CONFIGURATION =====
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwQnOJgNQSOzNJ4Yc4r_vSxidZS_U0eQw4pIB9Czl7uZ4q5oQtL2z145QZUpCBYCD2Z/exec'; // Replace with your deployed GAS URL
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz2LTajaRiPQZLQFUOnDupH591Pp9vbBXv6H6vWeJgachue2BdvexTT9oLLmfSEPPZl/exec'; // Replace with your deployed GAS URL
 const ADMIN_EMAIL = 'community@gmail.com';
 const ADMIN_PASSWORD = 'admin@community';
 

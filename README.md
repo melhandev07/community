@@ -95,8 +95,7 @@ community-portal/
    ```
 3. (Optional) Update admin credentials in `script.js`:
    ```javascript
-   const ADMIN_EMAIL = 'community@123';
-   const ADMIN_PASSWORD = 'admin@community123';
+
    ```
 
 ### Step 4: Deploy Website

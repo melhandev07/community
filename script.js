@@ -1,5 +1,5 @@
 // ===== CONFIGURATION =====
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVMF0S0w_1Btnbbxon_vShoJZkhKHZeYLrveRn9_ivxuvRRAlYBYC3YO_gdhTE0RO9/exec'; // Replace with your deployed GAS URL
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbztEzhX_eP45DewTTneRu1msjNfGPzxCneyHOk-2NjoTe56uRwufQ1AGZIrz8CTEfcw/exec'; // Replace with your deployed GAS URL
 const ADMIN_EMAIL = 'community@gmail.com';
 const ADMIN_PASSWORD = 'admin@community';
 
@@ -73,11 +73,14 @@ function switchPage(pageName) {
 
         // Load page-specific data
         if (pageName === 'donation') {
-            document.getElementById('donationTableBody').innerHTML = '<tr><td colspan="3" class="text-center">Enter your email to view donation status</td></tr>';
-            // if a user is logged in, prefill their email
+            document.getElementById('donationTableBody').innerHTML = '<tr><td colspan="4" class="text-center">Enter your email to view donation status</td></tr>';
+            // if a user is logged in, prefill their email and immediately load their records
             if (currentUser && currentUser.role === 'user') {
                 const emailInput = document.getElementById('donationEmail');
-                if (emailInput) emailInput.value = currentUser.email;
+                if (emailInput) {
+                    emailInput.value = currentUser.email;
+                    loadDonationStatus();
+                }
             }
         } else if (pageName === 'admin') {
             loadAdminDashboard();
@@ -419,6 +422,7 @@ async function loadDonationStatus() {
                             ${donation.status === 'paid' ? '✓ Paid' : donation.status === 'pending' ? '⏳ Pending' : '✗ Unpaid'}
                         </span>
                     </td>
+                    <td>${donation.amount || '-'}</td>
                     <td>
                         ${donation.status === 'pending' ? '<span class="text-muted">Awaiting confirmation</span>' : '-'}
                     </td>
@@ -438,23 +442,27 @@ async function loadAdminDonations() {
 
         if (response.success && response.donations) {
             const tableBody = document.getElementById('adminDonationsTableBody');
-            tableBody.innerHTML = response.donations.map(donation => `
+            tableBody.innerHTML = response.donations.map(donation => {
+                const amtDisplay = donation.amount ? donation.amount : '-';
+                const amtValue = donation.amount ? donation.amount : '';
+                return `
                 <tr>
                     <td>${donation.userName || '<em>unknown</em>'}</td>
                     <td>${donation.email}</td>
                     <td>${donation.userPhone || '-'}</td>
                     <td>${donation.month}</td>
-                    <td>${donation.amount || '0'}</td>
+                    <td>${amtDisplay}</td>
                     <td>
                         <span class="status-badge status-${donation.status}">
                             ${donation.status === 'paid' ? '✓ Paid' : donation.status === 'pending' ? '⏳ Pending' : '✗ Unpaid'}
                         </span>
                     </td>
                     <td>
-                        <button class="action-btn action-edit" onclick="editDonationStatus('${donation.id}', '${donation.userName || ''}', '${donation.email}', '${donation.userPhone || ''}', '${donation.month}', '${donation.amount || '0'}', '${donation.status}')">Update</button>
+                        <button class="action-btn action-edit" onclick="editDonationStatus('${donation.id}', '${donation.userName || ''}', '${donation.email}', '${donation.userPhone || ''}', '${donation.month}', '${amtValue}', '${donation.status}')">Update</button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
     } catch (error) {
         console.error('Error loading admin donations:', error);
@@ -647,6 +655,11 @@ async function callGAS(endpoint, data) {
 }
 
 // Mock data for demo/testing
+
+// keep some state so that signup/login create a donation record and admin actions persist
+const mockUsers = [];
+const mockDonations = [];
+
 function handleMockGASCall(endpoint, data) {
     // Sample mock leaders
     const mockLeaders = [
@@ -678,10 +691,32 @@ function handleMockGASCall(endpoint, data) {
             return { success: true, leaders: mockLeaders };
 
         case 'signup':
+            // store user and create a placeholder donation
+            if (data && data.email) {
+                mockUsers.push({ email: data.email, name: data.name });
+                mockDonations.push({
+                    id: String(mockDonations.length + 1),
+                    email: data.email,
+                    month: new Date().toLocaleString('default', { month: 'long' }),
+                    status: 'pending',
+                    amount: ''
+                });
+            }
             return { success: true, message: 'User created successfully' };
 
         case 'login':
             if (data.email && data.password) {
+                // ensure donation if missing
+                const exists = mockDonations.some(d => d.email === data.email);
+                if (!exists) {
+                    mockDonations.push({
+                        id: String(mockDonations.length + 1),
+                        email: data.email,
+                        month: new Date().toLocaleString('default', { month: 'long' }),
+                        status: 'pending',
+                        amount: ''
+                    });
+                }
                 return {
                     success: true,
                     user: {
@@ -714,56 +749,39 @@ function handleMockGASCall(endpoint, data) {
 
         case 'donations/get':
             if (data.allRecords) {
-                // Return all donations for admin panel
-                const months = ['January', 'February', 'March', 'April', 'May', 'June'];
-                const users = [
-                    { email: 'user1@example.com', name: 'John Doe', phone: '555-0101', address: '123 Main St' },
-                    { email: 'user2@example.com', name: 'Jane Smith', phone: '555-0102', address: '456 Oak Ave' },
-                    { email: 'user3@example.com', name: 'Bob Johnson', phone: '555-0103', address: '789 Pine Ln' }
-                ];
-                let allDonations = [];
-                for (let u = 0; u < users.length; u++) {
-                    for (let m = 0; m < months.length; m++) {
-                        const statusVal = (u + m) % 3 === 0 ? 'paid' : (u + m) % 3 === 1 ? 'pending' : 'unpaid';
-                        allDonations.push({
-                            id: (u * 6 + m).toString(),
-                            email: users[u].email,
-                            userName: users[u].name,
-                            userPhone: users[u].phone,
-                            userAddress: users[u].address,
-                            month: months[m],
-                            amount: (100 + (u * 10) + (m * 5)).toString(),
-                            status: statusVal
-                        });
-                    }
-                }
-                return { success: true, donations: allDonations };
+                // return the mockDonations with some user info
+                const users = mockUsers.reduce((acc, u) => {
+                    acc[u.email] = u;
+                    return acc;
+                }, {});
+                const enriched = mockDonations.map(d => ({
+                    ...d,
+                    userName: users[d.email] ? users[d.email].name : '',
+                    userPhone: ''
+                }));
+                return { success: true, donations: enriched };
             } else if (data.email) {
-                // Return donations for specific user email
-                const months = ['January', 'February', 'March', 'April', 'May', 'June'];
-                return {
-                    success: true,
-                    donations: months.map((month, i) => ({
-                        id: i.toString(),
-                        email: data.email,
-                        month: month,
-                        amount: (100 + (i * 5)).toString(),
-                        status: i % 3 === 0 ? 'paid' : i % 3 === 1 ? 'pending' : 'unpaid'
-                    }))
-                };
+                const donationsForUser = mockDonations.filter(d => d.email === data.email);
+                return { success: true, donations: donationsForUser };
             }
             return { success: true, donations: [] };
 
         case 'donations/update':
+            // update mock donation entry
+            const idx = mockDonations.findIndex(d => d.id === data.id);
+            if (idx !== -1) {
+                if (data.status) mockDonations[idx].status = data.status;
+                if (data.amount !== undefined) mockDonations[idx].amount = data.amount;
+            }
             return { success: true, message: 'Donation updated' };
 
         case 'stats/get':
             return {
                 success: true,
-                userCount: 45,
+                userCount: mockUsers.length,
                 leaderCount: mockLeaders.length,
                 messageCount: 12,
-                donationCount: 23
+                donationCount: mockDonations.length
             };
 
         default:

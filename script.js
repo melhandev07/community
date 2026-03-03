@@ -1,5 +1,5 @@
 // ===== CONFIGURATION =====
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyMtupW7QXoGlVdh0OIeOUUaxrtRikUzgE9WPmagPD-C4WBqQTtOZN_PKl2_abgKk09/exec'; // Replace with your deployed GAS URL
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVMF0S0w_1Btnbbxon_vShoJZkhKHZeYLrveRn9_ivxuvRRAlYBYC3YO_gdhTE0RO9/exec'; // Replace with your deployed GAS URL
 const ADMIN_EMAIL = 'community@gmail.com';
 const ADMIN_PASSWORD = 'admin@community';
 
@@ -440,15 +440,18 @@ async function loadAdminDonations() {
             const tableBody = document.getElementById('adminDonationsTableBody');
             tableBody.innerHTML = response.donations.map(donation => `
                 <tr>
-                    <td>${donation.userName || donation.email || '<em>unknown</em>'}</td>
+                    <td>${donation.userName || '<em>unknown</em>'}</td>
+                    <td>${donation.email}</td>
+                    <td>${donation.userPhone || '-'}</td>
                     <td>${donation.month}</td>
+                    <td>${donation.amount || '0'}</td>
                     <td>
                         <span class="status-badge status-${donation.status}">
                             ${donation.status === 'paid' ? '✓ Paid' : donation.status === 'pending' ? '⏳ Pending' : '✗ Unpaid'}
                         </span>
                     </td>
                     <td>
-                        <button class="action-btn action-edit" onclick="editDonationStatus('${donation.id}', '${donation.month}', '${donation.status}')">Update</button>
+                        <button class="action-btn action-edit" onclick="editDonationStatus('${donation.id}', '${donation.userName || ''}', '${donation.email}', '${donation.userPhone || ''}', '${donation.month}', '${donation.amount || '0'}', '${donation.status}')">Update</button>
                     </td>
                 </tr>
             `).join('');
@@ -458,9 +461,13 @@ async function loadAdminDonations() {
     }
 }
 
-function editDonationStatus(id, month, status) {
+function editDonationStatus(id, userName, email, phone, month, amount, status) {
     document.getElementById('donationId').value = id;
+    document.getElementById('donationUserName').value = userName;
+    document.getElementById('donationUserEmail').value = email;
+    document.getElementById('donationUserPhone').value = phone;
     document.getElementById('donationMonth').value = month;
+    document.getElementById('donationAmount').value = amount;
     document.getElementById('donationStatusSelect').value = status;
     openModal('donationStatusModal');
 }
@@ -470,20 +477,22 @@ async function handleDonationStatusSubmit(e) {
 
     const donationData = {
         id: document.getElementById('donationId').value,
+        amount: document.getElementById('donationAmount').value,
         status: document.getElementById('donationStatusSelect').value,
         isAdmin: currentUser && currentUser.role === 'admin'
     };
 
     try {
         if (!donationData.isAdmin) {
-            showNotification('You are not authorized to update donation status', 'error');
+            showNotification('You are not authorized to update donation information', 'error');
             return;
         }
         const response = await callGAS('donations/update', donationData);
 
         if (response.success) {
-            showNotification('Donation status updated!', 'success');
+            showNotification('Donation updated successfully!', 'success');
             closeModal('donationStatusModal');
+            document.getElementById('donationStatusForm').reset();
             loadAdminDonations();
         } else {
             showNotification(response.error || 'Failed to update', 'error');
@@ -707,16 +716,24 @@ function handleMockGASCall(endpoint, data) {
             if (data.allRecords) {
                 // Return all donations for admin panel
                 const months = ['January', 'February', 'March', 'April', 'May', 'June'];
-                const users = ['user1@example.com', 'user2@example.com', 'user3@example.com'];
+                const users = [
+                    { email: 'user1@example.com', name: 'John Doe', phone: '555-0101', address: '123 Main St' },
+                    { email: 'user2@example.com', name: 'Jane Smith', phone: '555-0102', address: '456 Oak Ave' },
+                    { email: 'user3@example.com', name: 'Bob Johnson', phone: '555-0103', address: '789 Pine Ln' }
+                ];
                 let allDonations = [];
                 for (let u = 0; u < users.length; u++) {
                     for (let m = 0; m < months.length; m++) {
+                        const statusVal = (u + m) % 3 === 0 ? 'paid' : (u + m) % 3 === 1 ? 'pending' : 'unpaid';
                         allDonations.push({
                             id: (u * 6 + m).toString(),
-                            email: users[u],
-                            userName: 'User ' + (u + 1),
+                            email: users[u].email,
+                            userName: users[u].name,
+                            userPhone: users[u].phone,
+                            userAddress: users[u].address,
                             month: months[m],
-                            status: (u + m) % 3 === 0 ? 'paid' : (u + m) % 3 === 1 ? 'pending' : 'unpaid'
+                            amount: (100 + (u * 10) + (m * 5)).toString(),
+                            status: statusVal
                         });
                     }
                 }
@@ -730,6 +747,7 @@ function handleMockGASCall(endpoint, data) {
                         id: i.toString(),
                         email: data.email,
                         month: month,
+                        amount: (100 + (i * 5)).toString(),
                         status: i % 3 === 0 ? 'paid' : i % 3 === 1 ? 'pending' : 'unpaid'
                     }))
                 };

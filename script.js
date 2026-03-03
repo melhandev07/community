@@ -563,6 +563,11 @@ async function loadAdminDashboard() {
             document.getElementById('adminStatMessages').textContent = response.messageCount || 0;
             document.getElementById('adminStatDonations').textContent = response.donationCount || 0;
         }
+        
+        // Load the admin tables data
+        loadAdminLeaders();
+        loadAdminDonations();
+        loadAdminMessages();
     } catch (error) {
         console.error('Error loading admin dashboard:', error);
     }
@@ -699,16 +704,37 @@ function handleMockGASCall(endpoint, data) {
             };
 
         case 'donations/get':
-            const months = ['January', 'February', 'March', 'April', 'May', 'June'];
-            return {
-                success: true,
-                donations: months.map((month, i) => ({
-                    id: i.toString(),
-                    email: data.email,
-                    month: month,
-                    status: i % 3 === 0 ? 'paid' : i % 3 === 1 ? 'pending' : 'unpaid'
-                }))
-            };
+            if (data.allRecords) {
+                // Return all donations for admin panel
+                const months = ['January', 'February', 'March', 'April', 'May', 'June'];
+                const users = ['user1@example.com', 'user2@example.com', 'user3@example.com'];
+                let allDonations = [];
+                for (let u = 0; u < users.length; u++) {
+                    for (let m = 0; m < months.length; m++) {
+                        allDonations.push({
+                            id: (u * 6 + m).toString(),
+                            email: users[u],
+                            userName: 'User ' + (u + 1),
+                            month: months[m],
+                            status: (u + m) % 3 === 0 ? 'paid' : (u + m) % 3 === 1 ? 'pending' : 'unpaid'
+                        });
+                    }
+                }
+                return { success: true, donations: allDonations };
+            } else if (data.email) {
+                // Return donations for specific user email
+                const months = ['January', 'February', 'March', 'April', 'May', 'June'];
+                return {
+                    success: true,
+                    donations: months.map((month, i) => ({
+                        id: i.toString(),
+                        email: data.email,
+                        month: month,
+                        status: i % 3 === 0 ? 'paid' : i % 3 === 1 ? 'pending' : 'unpaid'
+                    }))
+                };
+            }
+            return { success: true, donations: [] };
 
         case 'donations/update':
             return { success: true, message: 'Donation updated' };

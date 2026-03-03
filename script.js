@@ -1,5 +1,5 @@
 // ===== CONFIGURATION =====
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbz2LTajaRiPQZLQFUOnDupH591Pp9vbBXv6H6vWeJgachue2BdvexTT9oLLmfSEPPZl/exec'; // Replace with your deployed GAS URL
+const GAS_URL = 'https://script.google.com/macros/s/AKfycby26ue4ySfk8uHrIUOU2wsML-yD54YXY36UeFaOSIcgwjLtDW9rIz_9qr_RawlCXEy7/exec'; // Replace with your deployed GAS URL
 const ADMIN_EMAIL = 'community@gmail.com';
 const ADMIN_PASSWORD = 'admin@community';
 
@@ -74,6 +74,11 @@ function switchPage(pageName) {
         // Load page-specific data
         if (pageName === 'donation') {
             document.getElementById('donationTableBody').innerHTML = '<tr><td colspan="3" class="text-center">Enter your email to view donation status</td></tr>';
+            // if a user is logged in, prefill their email
+            if (currentUser && currentUser.role === 'user') {
+                const emailInput = document.getElementById('donationEmail');
+                if (emailInput) emailInput.value = currentUser.email;
+            }
         } else if (pageName === 'admin') {
             loadAdminDashboard();
         }
@@ -432,7 +437,7 @@ async function loadAdminDonations() {
             const tableBody = document.getElementById('adminDonationsTableBody');
             tableBody.innerHTML = response.donations.map(donation => `
                 <tr>
-                    <td>${donation.email}</td>
+                    <td>${donation.userName || donation.email || '<em>unknown</em>'}</td>
                     <td>${donation.month}</td>
                     <td>
                         <span class="status-badge status-${donation.status}">
@@ -462,10 +467,15 @@ async function handleDonationStatusSubmit(e) {
 
     const donationData = {
         id: document.getElementById('donationId').value,
-        status: document.getElementById('donationStatusSelect').value
+        status: document.getElementById('donationStatusSelect').value,
+        isAdmin: currentUser && currentUser.role === 'admin'
     };
 
     try {
+        if (!donationData.isAdmin) {
+            showNotification('You are not authorized to update donation status', 'error');
+            return;
+        }
         const response = await callGAS('donations/update', donationData);
 
         if (response.success) {

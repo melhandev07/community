@@ -1,5 +1,5 @@
 // ===== CONFIGURATION =====
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxQtyrk2xnhngxfi1Fs7u_XDkbHvDbfZQr4_T4fwAlPv3fwdq66OMI-cLTFoQjSNIA5/exec'; // Replace with your deployed GAS URL
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyMtupW7QXoGlVdh0OIeOUUaxrtRikUzgE9WPmagPD-C4WBqQTtOZN_PKl2_abgKk09/exec'; // Replace with your deployed GAS URL
 const ADMIN_EMAIL = 'community@gmail.com';
 const ADMIN_PASSWORD = 'admin@community';
 
@@ -317,15 +317,18 @@ async function loadAdminLeaders() {
     }
 }
 
-function openLeaderModal(id = null, name = '', title = '', photoURL = '', description = '') {
-    if (id) {
-        // View mode
-        document.getElementById('leaderName').textContent = name;
-        document.getElementById('leaderTitle').textContent = title;
-        document.getElementById('leaderPhoto').src = photoURL;
-        document.getElementById('leaderDescription').textContent = description;
-        openModal('leaderModal');
-    }
+// viewer modal — keeps the earlier definition intact
+// (the first openLeaderModal defined above is the one actually used)
+
+// helper to open the admin form modal for add/edit
+function openLeaderFormModal(id = null, name = '', title = '', photoURL = '', description = '') {
+    document.getElementById('leaderFormTitle').textContent = id ? 'Edit Leader' : 'Add New Leader';
+    document.getElementById('leaderId').value = id || '';
+    document.getElementById('leaderInputName').value = name;
+    document.getElementById('leaderInputTitle').value = title;
+    document.getElementById('leaderInputPhoto').value = photoURL;
+    document.getElementById('leaderInputDesc').value = description;
+    openModal('leaderFormModal');
 }
 
 function editLeader(id, name, title, photoURL, description) {
